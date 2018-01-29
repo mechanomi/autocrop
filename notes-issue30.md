@@ -1,11 +1,11 @@
-# Dev notes for issue 25
-- Add `-o`, `--output` flag to specify directory where cropped images are to be dumped.
-    * Error out if output folder set to current directory, i.e. `-o .`
-    * If directory doesn't exist yet, create it.
-    * If no face can be found in an image in batch, it is still copied over to `-o` folder.
-    * If no output folder is added, ask for confirmation (`[Y]/n`), and destructively crop images in-place.
-        + Confirmation can be skipped with `--no-confirm` flag.
-- Use `-i`, `--input` flags as synonyms for `-p` or `--path`: symmetrical in meaning to "output".
-    * To become standard nomenclature in documentation.
-- `--input` or `--path` flag to become optional.
-    * Standard behaviour without input folder will be to non-recursively process all images in immediate folder, i.e. `-p .` as currently implemented.
+# Dev notes for autocrop issue 30
+* [ ] `autocrop filename.jpg` should crop the image in place and ask for confirmation.
+    - [ ] Flag `--force` or `-f` to bypass prompt.
+* [ ] `autocrop filename.jpg -o folder` places the cropped image in folder.
+    - [ ] If that directory doesn't exist, create it.
+    - [ ] If `folder/filename.jpg` already exists, prompt, bypass with `-f`
+* [ ] `autocrop filename.jpg -i folder` doesn't make sense to me. Error out.
+* [ ] `autocrop -w` and `-H`: same behaviour as currently implemented.
+* [ ] Standarsize error codes for single files.
+    - [ ] 0 for success
+    - [ ] 1 for failure

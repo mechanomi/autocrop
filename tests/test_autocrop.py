@@ -239,3 +239,35 @@ def test_image_files_overwritten_if_no_output_dir(integration):
     # Images with a face have been cropped
     shape = cv2.imread('tests/test/king.jpg').shape
     assert shape == (500, 500, 3)
+# 
+# 
+# def test_calling_autocrop_with_filename_crops_it():
+#     assert True is False
+# 
+# 
+# def test_autocrop_from_file_prompts_for_overwrite():
+#     assert True is False
+# 
+# 
+# def test_single_file_no_prompt_with_force_flag():
+#     assert True is False
+# 
+# 
+# def test_single_file_with_output_moves_it_there():
+#     assert True is False
+# 
+# 
+# def test_single_file_with_output_prompt_if_already_exists():
+#     assert True is False
+# 
+# 
+# def test_error_if_single_file_and_input_flags():
+#     assert True is False
+# 
+# 
+# def test_single_file_exits_with_0_for_success():
+#     assert True is False
+# 
+# 
+# def test_single_file_exits_with_1_for_noface():
+#     assert True is False
