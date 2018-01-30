@@ -106,7 +106,41 @@ def crop(image, fwidth=500, fheight=500):
     return image
 
 
-def main(input_d, output_d, fheight=500, fwidth=500):
+def crop_file(f, output_d, fheight=500, fwidth=500):
+    """Crops image file to the desired height and width if a face is found
+
+    If output_d is not specified, overwrites file.
+
+    Args:
+        f (str): Absolute path of image file to crop.
+        output_d (str): Directory where cropped images are placed.
+        fheight (int): Height (px) to which to crop the image.
+                       Default: 500px
+        fwidth (int): Width (px) to which to crop the image.
+                       Default: 500px
+
+    Side Effects:
+        Either overwrites image file or creates cropped copy in output_d.
+
+    str, str, (int), (int) -> None
+    """
+    filename = os.path.basename(f)
+
+    # Perform the actual crop
+    input_img = cv2.imread(f)
+    image = crop(input_img, fwidth, fheight)
+
+    # Make sure there actually was a face in there
+    if isinstance(image, type(None)):
+        print('No faces can be detected in {}.'.format(filename))
+        sys.exit(1)
+
+    # Write cropfile
+    output_filename = os.path.join(output_d, filename)
+    cv2.imwrite(output_filename, image)
+
+
+def crop_folder(input_d, output_d, fheight=500, fwidth=500):
     """Crops folder of images to the desired height and width if a face is found
 
     If input_d == output_d or output_d is None, overwrites all files
@@ -160,6 +194,20 @@ def main(input_d, output_d, fheight=500, fwidth=500):
 
     # Stop and print status
     print(' {} files have been cropped'.format(len(files) - errors))
+
+
+def filename(p):
+    """Returns absolute path, only if input is a valid image file"""
+    not_file = 'Input filename does not exist'
+    not_image = 'Input filename is not a recognized image file'
+    p = os.path.abspath(p)
+    if not os.path.isfile(p):
+        raise argparse.ArgumentTypeError(not_file)
+    filetype = os.path.splitext(p)[-1]
+    if filetype not in INPUT_FILETYPES:
+        raise argparse.ArgumentTypeError(not_image)
+    else:
+        return p
 
 
 def input_path(p):
@@ -254,9 +302,10 @@ def confirmation(question, default=True):
 def parse_args(args):
     help_d = {
             'desc': 'Automatically crops faces from batches of pictures',
-            'input': '''Folder where images to crop are located.
+            'file': 'Filename of the image to crop face from.',
+            'input': '''Folder where images to crop faces are located.
 Default: current working directory''',
-            'output': '''Folder where cropped images will be placed.
+            'output': '''Folder where cropped image(s) will be placed.
 Default: current working directory''',
             'width': 'Width of cropped files in px. Default=500',
             'height': 'Height of cropped files in px. Default=500',
@@ -264,17 +313,20 @@ Default: current working directory''',
             }
 
     parser = argparse.ArgumentParser(description=help_d['desc'])
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-i', '--input', default='.', type=input_path,
+                       help=help_d['input'])
+    group.add_argument('file', type=filename, help=help_d['file'])
     parser.add_argument('-o', '--output', '-p', '--path', type=output_path,
                         default=None, help=help_d['output'])
-    parser.add_argument('-i', '--input', default='.', type=input_path,
-                        help=help_d['input'])
     parser.add_argument('-w', '--width', type=size,
                         default=500, help=help_d['width'])
     parser.add_argument('-H', '--height',
                         type=size, default=500, help=help_d['height'])
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s version {}'.format(__version__))
-    parser.add_argument('--no-confirm', action='store_true', help=help_d['y'])
+    parser.add_argument('-y', '--yes', '--no-confirm', action='store_true',
+                        help=help_d['y'])
     return parser.parse_args()
 
 
@@ -283,8 +335,12 @@ def cli():
     if not args.no_confirm:
         if args.output is None or args.input == args.output:
             if not confirmation(QUESTION_OVERWRITE):
-                sys.exit()
-    if args.input == args.output:
-        args.output = None
-    print('Processing images in folder:', args.input)
-    main(args.input, args.output, args.height, args.width)
+                sys.exit(1)
+    if args.input is not None:
+        if args.input == args.output:
+            args.output = None
+        print('Processing images in folder:', args.input)
+        crop_folder(args.input, args.output, args.height, args.width)
+
+    # Crop file
+    crop_file(args.file, args.output, args.height, args.width)
