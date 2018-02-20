@@ -313,10 +313,9 @@ Default: current working directory''',
             }
 
     parser = argparse.ArgumentParser(description=help_d['desc'])
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-i', '--input', default='.', type=input_path,
-                       help=help_d['input'])
-    group.add_argument('file', type=filename, help=help_d['file'])
+    parser.add_argument('file', nargs='?', type=filename, help=help_d['file'])
+    parser.add_argument('-i', '--input', default='.', type=input_path,
+                        help=help_d['input'])
     parser.add_argument('-o', '--output', '-p', '--path', type=output_path,
                         default=None, help=help_d['output'])
     parser.add_argument('-w', '--width', type=size,
@@ -325,7 +324,7 @@ Default: current working directory''',
                         type=size, default=500, help=help_d['height'])
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s version {}'.format(__version__))
-    parser.add_argument('-y', '--yes', '--no-confirm', action='store_true',
+    parser.add_argument('-y', '--no-confirm', action='store_true',
                         help=help_d['y'])
     return parser.parse_args()
 
