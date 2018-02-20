@@ -342,5 +342,5 @@ def cli():
             args.output = None
         print('Processing images in folder:', args.input)
         crop_folder(args.input, args.output, args.height, args.width)
-    # Else, crop file
-    crop_file(args.file, args.output, args.height, args.width)
+    else:
+        crop_file(args.file, args.output, args.height, args.width)
