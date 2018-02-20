@@ -331,15 +331,16 @@ Default: current working directory''',
 
 def cli():
     args = parse_args(sys.argv[1:])
+    # Prompt confirmation if need be
     if not args.no_confirm:
         if args.output is None or args.input == args.output:
             if not confirmation(QUESTION_OVERWRITE):
                 sys.exit(1)
-    if args.input is not None:
+    # Crop folder if specified 
+    if args.input is not None or (args.input is None and args.file is None):
         if args.input == args.output:
             args.output = None
         print('Processing images in folder:', args.input)
         crop_folder(args.input, args.output, args.height, args.width)
-
-    # Crop file
+    # Else, crop file
     crop_file(args.file, args.output, args.height, args.width)

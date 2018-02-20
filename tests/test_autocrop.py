@@ -95,7 +95,6 @@ def test_size_minus_14_not_valid():
 @mock.patch('autocrop.autocrop.input_path', lambda p: p)
 @mock.patch('autocrop.autocrop.crop_folder')
 def test_cli_no_args_means_cwd(mock_crop_folder):
-    # TODO: Mutually exclusive args must be optional
     mock_crop_folder.return_value = None
     sys.argv = ['', '--no-confirm']
     cli()
