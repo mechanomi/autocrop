@@ -331,6 +331,8 @@ Default: current working directory''',
 
 def cli():
     args = parse_args(sys.argv[1:])
+    # TODO: default input collides with file
+    print(args)
     # Prompt confirmation if need be
     if not args.no_confirm:
         if args.output is None or args.input == args.output:
