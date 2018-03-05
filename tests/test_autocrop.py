@@ -33,7 +33,6 @@ def integration():
     path_i = 'tests/test'
     path_o = 'tests/crop'
     shutil.copytree('tests/data', path_i)
-
     yield
 
     # Teardown
@@ -99,7 +98,7 @@ def test_cli_no_args_means_cwd(mock_crop_folder):
     sys.argv = ['', '--no-confirm']
     cli()
     args, _ = mock_crop_folder.call_args
-    assert args == ('.', None, 500, 500)
+    assert args == (None, None, 500, 500)
 
 
 @mock.patch('autocrop.autocrop.input_path', lambda p: p)
@@ -241,6 +240,7 @@ def test_image_files_overwritten_if_no_output_dir(integration):
     assert shape == (500, 500, 3)
 
 
+@mock.patch('autocrop.autocrop.confirmation', lambda *args: True)
 @mock.patch('autocrop.autocrop.crop_file')
 def test_calling_autocrop_with_filename_crops_it(mock_crop_file, integration):
     mock_crop_file.return_value = None
@@ -251,10 +251,18 @@ def test_calling_autocrop_with_filename_crops_it(mock_crop_file, integration):
     assert mock_crop_file.call_count == 1
 
 
-# def test_cli_input_and_filename_raises_error():
-#     assert True is False
-#
-#
+@mock.patch('autocrop.autocrop.confirmation', lambda *args: True)
+@mock.patch('autocrop.autocrop.crop_file')
+def test_cli_input_and_filename_raises_error(mock_crop_file, integration):
+    mock_crop_file.return_value = None
+    sys.argv = ['', 'tests/test/king.jpg', '-i', 'tests/data']
+    with pytest.raises(SystemExit) as e:
+        cli()
+    assert e.type == SystemExit
+    print(e.__name__)
+    assert 'both' in str(e)
+
+
 # def test_cli_just_input_flag_no_arg_throws_error():
 #     assert True is False
 #

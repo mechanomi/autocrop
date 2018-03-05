@@ -263,7 +263,7 @@ def confirmation(question, default=True):
     Args:
         question(str):
             A question that is presented to the user.
-        default(bool|None):
+        default(bool|True):
             The default value when enter is pressed with no value.
             When None, there is no default value and the query
             will loop.
@@ -306,7 +306,7 @@ def parse_args(args):
             'input': '''Folder where images to crop faces are located.
 Default: current working directory''',
             'output': '''Folder where cropped image(s) will be placed.
-Default: current working directory''',
+Default: --input if specified, else current working directory''',
             'width': 'Width of cropped files in px. Default=500',
             'height': 'Height of cropped files in px. Default=500',
             'y': 'Bypass any confirmation prompts',
@@ -314,7 +314,7 @@ Default: current working directory''',
 
     parser = argparse.ArgumentParser(description=help_d['desc'])
     parser.add_argument('file', nargs='?', type=filename, help=help_d['file'])
-    parser.add_argument('-i', '--input', default='.', type=input_path,
+    parser.add_argument('-i', '--input', type=input_path, default=None,
                         help=help_d['input'])
     parser.add_argument('-o', '--output', '-p', '--path', type=output_path,
                         default=None, help=help_d['output'])
@@ -329,16 +329,28 @@ Default: current working directory''',
     return parser.parse_args()
 
 
+def needs_confirm(args):
+    """Returns True if arguments are such that they need confirmation"""
+    if args.no_confirm:
+        return False
+    if args.output is None:
+        return True
+    if args.output == args.input:
+        return True
+    return False
+
+
 def cli():
     args = parse_args(sys.argv[1:])
     # TODO: default input collides with file
     print(args)
-    # Prompt confirmation if need be
-    if not args.no_confirm:
-        if args.output is None or args.input == args.output:
-            if not confirmation(QUESTION_OVERWRITE):
-                sys.exit(1)
-    # Crop folder if specified 
+    if args.file and args.input:
+        both_error = "Please specify a file or a folder to crop, not both"
+        raise argparse.ArgumentTypeError(both_error)
+    if needs_confirm(args):
+        if not confirmation(QUESTION_OVERWRITE):
+            sys.exit(1)
+    # Crop folder if specified
     if args.input is not None or (args.input is None and args.file is None):
         if args.input == args.output:
             args.output = None
